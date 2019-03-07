@@ -545,6 +545,8 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 				
 				System.out.println("Copies(required,default 1)");
 				
+				copies = sc.nextLine();
+				
 			}else {
 				
 				s = false;
