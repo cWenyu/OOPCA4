@@ -29,108 +29,154 @@ import java.util.Scanner;
 
 public class MainApp {
 
-    public static void main(String[] args) {
+    static MovieDaoInterface iMovieDao = new MySqlMovieDao();
 
+    public static void main(String[] args) {
         Scanner k = new Scanner(System.in);
-        System.out.println("please enter command: ");
+        System.out.println("Hello");
         System.out.println("If you want to exit type 'Q' ");
-        String command = null;
+        
+        //command line 
+        String message = "please enter command:";
+        System.out.print(message);
+        String command;
+
+        labelB:
         while (k.hasNextLine()) {
             command = k.nextLine();
-            if (command.contains(" ")) {
-                String[] lineWords = command.split(" ");
-                String subCommand = lineWords[0].toUpperCase();
-                String title = "";
-                String updateTitle = "";
-                int idOrYear = Integer.parseInt(lineWords[1]);
-                int j = 2;
-                for (int i = 1; i < lineWords.length; i++) {
-                    title += lineWords[i] + " ";
-                    if (j < lineWords.length) {
-                        updateTitle += lineWords[j] + " ";
-                        j++;
-                    }
 
-                }
-                switch (subCommand) {
-                    case "FINDMOVIEBYTITLE":
-                        findMovieByTitle(title);
-                        break;
+            String[] details = splitCommand(command);
+            String subCommand = details[0].toUpperCase();
 
-                    case "DELETEMOVIE":
-                        deleteMovie(idOrYear);
-                        break;
+            labelA:
+            switch (subCommand) {
+                case "FINDMOVIEBYTITLE":
+                    findMovieByTitle(details[1]);
+                    break;
 
-                    case "UPDATEMOVIETITLE":
-                        updateMovieTitle(idOrYear, updateTitle);
-                        break;
+                case "DELETEMOVIE":
+                    deleteMovie(Integer.parseInt(details[1]));
+                    break;
 
-                    case "FINDMOVIEBYID":
-                        findMovieById(idOrYear);
-                        break;
+                case "UPDATEMOVIETITLE":
+                    updateMovieTitle(Integer.parseInt(details[1]), details[2]);
+                    break;
 
-                    case "FINDMOVIEBYYEAR":
-                        findMovieByYear(idOrYear);
-                        break;
-                }
-            } else if (command.equals("Q")) {
-                break;
-            } else {
-                switch (command) {
-                    case "TESTMOVIES":
-                        testMovies();
-                        break;
+                case "FINDMOVIEBYID":
+                    findMovieById(Integer.parseInt(details[1]));
+                    break;
 
-                    case "TOPTENMOVIES":
-                        topTenMovies();
-                        break;
+                case "FINDMOVIEBYYEAR":
+                    findMovieByYear(Integer.parseInt(details[1]));
+                    break;
 
-                    case "INSERTNEWMOVIE":
-                        insertNewMovie();
-                        break;
+                case "FINDMOVIEBYDIRECTOR":
+                    findMovieByDirector(details[1]);
+                    break;
 
-                }
+                case "TESTMOVIES":
+                    testMovies();
+                    break;
 
+                case "TOPTENMOVIES":
+                    topTenMovies();
+                    break;
+
+                case "INSERTNEWMOVIE":
+                    insertNewMovie();
+                    break;
+
+                default:
+                    message = "";
+                    break labelB;
             }
+            System.out.print(message);
         }
     }
 
-    public static void getUsers() {
-        UserDaoInterface IUserDao = new MySqlUserDao();
-        try {
-            List<User> users = IUserDao.findAllUsers();
+//    public static void getUsers() {
+//        UserDaoInterface IUserDao = new MySqlUserDao();
+//        try {
+//            List<User> users = IUserDao.findAllUsers();
+//
+//            if (users.isEmpty()) {
+//                System.out.println("There are no Users");
+//            }
+//
+//            for (User user : users) {
+//                System.out.println("User: " + user.toString());
+//            }
+//
+//            // test dao - with good username and password
+//            User user = IUserDao.findUserByUsernamePassword("smithj", "password");
+//            if (user != null) {
+//                System.out.println("User found: " + user);
+//            } else {
+//                System.out.println("Username with that password not found");
+//            }
+//
+//            // test dao - with bad username
+//            user = IUserDao.findUserByUsernamePassword("madmax", "thunderdome");
+//            if (user != null) {
+//                System.out.println("User found: " + user);
+//            } else {
+//                System.out.println("Username with that password not found");
+//            }
+//
+//        } catch (DaoException e) {
+//            e.printStackTrace();
+//        }
+//    }
+    public static String[] splitCommand(String command) {
+        String[] details = null;
 
-            if (users.isEmpty()) {
-                System.out.println("There are no Users");
+        if (command.contains(" ")) {
+            String[] lineWords = command.split(" ");
+            String subCommand = lineWords[0].toUpperCase();
+
+            switch (subCommand) {
+                case "DELETEMOVIE":
+                case "FINDMOVIEBYID":
+                case "FINDMOVIEBYYEAR":
+                    details = lineWords;
+
+                case "FINDMOVIEBYTITLE":
+                case "FINDMOVIEBYDIRECTOR":
+                    String str = "";
+                    for (int i = 1; i < lineWords.length; i++) {
+                        str += lineWords[i];
+                        if (i < lineWords.length - 1) {
+                            str += " ";
+                        }
+                    }
+                    details = new String[2];
+                    details[0] = subCommand;
+                    details[1] = str;
+
+                case "UPDATEMOVIETITLE":
+                    String str1 = "";
+                    for (int i = 2; i < lineWords.length; i++) {
+                        str1 += lineWords[i];
+                        if (i < lineWords.length - 1) {
+                            str1 += " ";
+                        }
+                    }
+                    details = new String[3];
+                    details[0] = subCommand;
+                    details[1] = lineWords[1];
+                    details[2] = str1;
             }
-
-            for (User user : users) {
-                System.out.println("User: " + user.toString());
-            }
-
-            // test dao - with good username and password
-            User user = IUserDao.findUserByUsernamePassword("smithj", "password");
-            if (user != null) {
-                System.out.println("User found: " + user);
-            } else {
-                System.out.println("Username with that password not found");
-            }
-
-            // test dao - with bad username
-            user = IUserDao.findUserByUsernamePassword("madmax", "thunderdome");
-            if (user != null) {
-                System.out.println("User found: " + user);
-            } else {
-                System.out.println("Username with that password not found");
-            }
-
-        } catch (DaoException e) {
-            e.printStackTrace();
+        } else {
+            details = new String[1];
+            details[0] = command;
         }
+
+        return details;
+
     }
 
     public static String testMovies() {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        //MovieDaoInterface iMovieDao = new MySqlMovieDao();
         String jsonString = "{"
                 + "\"movies\":"
                 + "[ ";
@@ -166,7 +212,7 @@ public class MainApp {
     }
 
     public static void findMovieByTitle(String title) {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        // MovieDaoInterface iMovieDao = new MySqlMovieDao();
 
         try {
             List<Movie> movies = iMovieDao.findMovieByTitle(title);
@@ -199,7 +245,7 @@ public class MainApp {
     }
 
     public static void topTenMovies() {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        //MovieDaoInterface iMovieDao = new MySqlMovieDao();
 
         try {
             List<Movie> movies = iMovieDao.topTenMovies();
@@ -235,7 +281,7 @@ public class MainApp {
     }
 
     public static void updateMovieTitle(int id, String title) {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        // MovieDaoInterface iMovieDao = new MySqlMovieDao();
         try {
             iMovieDao.updateMovieTitle(id, title);
 
@@ -245,7 +291,7 @@ public class MainApp {
     }
 
     public static void deleteMovie(int id) {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        //MovieDaoInterface iMovieDao = new MySqlMovieDao();
         try {
             iMovieDao.deleteMovie(id);
 
@@ -255,7 +301,7 @@ public class MainApp {
     }
 
     public static void insertNewMovie() {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        // MovieDaoInterface iMovieDao = new MySqlMovieDao();
         try {
             iMovieDao.insertNewMovie();
 
@@ -265,7 +311,7 @@ public class MainApp {
     }
 
     public static void findMovieById(int id) {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        //MovieDaoInterface iMovieDao = new MySqlMovieDao();
 
         try {
             Movie m = iMovieDao.findMovieById(id);
@@ -281,10 +327,41 @@ public class MainApp {
     }
 
     public static void findMovieByYear(int year) {
-        MovieDaoInterface iMovieDao = new MySqlMovieDao();
+        // MovieDaoInterface iMovieDao = new MySqlMovieDao();
 
         try {
             List<Movie> movies = iMovieDao.findMovieByYear(year);
+            if (movies.isEmpty()) {
+                System.out.println("There is no moive you searched, please check again.");
+            } else {
+                String jsonString = "{"
+                        + "\"movies\":"
+                        + "[ ";
+                int i = 1;
+                for (Movie movie : movies) {
+                    jsonString += movie.toJson();
+
+                    if (i < movies.size()) {
+                        jsonString += ",";
+                        i++;
+                    } else {
+                        jsonString += " ";
+                    }
+
+                }
+                jsonString += "]"
+                        + "}";
+                System.out.println(jsonString);
+            }
+
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void findMovieByDirector(String directorName) {
+        try {
+            List<Movie> movies = iMovieDao.findMovieByDirector(directorName);
             if (movies.isEmpty()) {
                 System.out.println("There is no moive you searched, please check again.");
             } else {
