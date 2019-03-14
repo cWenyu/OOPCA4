@@ -188,27 +188,27 @@ public class Movie {
 				+ ", user_rating=" + user_rating + "]";
 	}
 	
-	public String toJson() {
-		
-		String movieString = "{\"id\":\"" + this.getId() + "\","
-				+ "\"title\":\"" + this.getTitle() + "\","
-				+ "\"genre\":\"" + this.getGenre() + "\","
-				+ "\"director\":\"" + this.getDirector() + "\","
-				+ "\"runtime\":\"" + this.getRuntime() + "\","
-				+ "\"plot\":\"" + this.getPlot() + "\","
-				+ "\"location\":\"" + this.getLocation() + "\","
-				+ "\"poster\":\"" + this.getPoster() + "\","
-				+ "\"rating\":\"" + this.getRating() + "\","
-				+ "\"format\":\"" + this.getFormat() + "\","
-				+ "\"year\":\"" + this.getYear() + "\","
-				+ "\"starring\":\"" + this.getStarring() + "\","
-				+ "\"copies\":\"" + this.getCopies() + "\","
-				+ "\"barcode\":\"" + this.getBarcode() + "\","
-				+ "\"user_rating\":\"" + this.getUser_rating() + "\"}";
-		
-		
-		return movieString;
-	}
+//	public String toJson() {
+//		
+//		String movieString = "{\"id\":\"" + this.getId() + "\","
+//				+ "\"title\":\"" + this.getTitle() + "\","
+//				+ "\"genre\":\"" + this.getGenre() + "\","
+//				+ "\"director\":\"" + this.getDirector() + "\","
+//				+ "\"runtime\":\"" + this.getRuntime() + "\","
+//				+ "\"plot\":\"" + this.getPlot() + "\","
+//				+ "\"location\":\"" + this.getLocation() + "\","
+//				+ "\"poster\":\"" + this.getPoster() + "\","
+//				+ "\"rating\":\"" + this.getRating() + "\","
+//				+ "\"format\":\"" + this.getFormat() + "\","
+//				+ "\"year\":\"" + this.getYear() + "\","
+//				+ "\"starring\":\"" + this.getStarring() + "\","
+//				+ "\"copies\":\"" + this.getCopies() + "\","
+//				+ "\"barcode\":\"" + this.getBarcode() + "\","
+//				+ "\"user_rating\":\"" + this.getUser_rating() + "\"}";
+//		
+//		
+//		return movieString;
+//	}
 	
 	
 	

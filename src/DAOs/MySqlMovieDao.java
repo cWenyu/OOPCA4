@@ -416,6 +416,8 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 		
 		String genre = sc.nextLine();
 		
+		s = true;
+		
 		while(s) {
 			
 			if(genre.isEmpty()) {
@@ -440,6 +442,8 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 		
 		String director = sc.nextLine();
 		
+		s = true;
+		
 		while(s) {
 			
 			if(director.isEmpty()) {
@@ -463,6 +467,8 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 		System.out.println("Runtime:(number only)(required)");
 		
 		String runtime = sc.nextLine();
+		
+		s = true;
 
 		while(s) {
 			
@@ -510,6 +516,8 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 
 		String year = sc.nextLine();
 		
+		s = true;
+		
 		while(s) {
 			
 			if(year.isEmpty() || !isNum(year)) {
@@ -538,6 +546,8 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 		System.out.println("Copies(required,default 1)");
 		
 		String copies = sc.nextLine();
+		
+		s = true;
 		
 		while(s) {
 			
@@ -686,11 +696,11 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 			
 			con = this.getConnection();
 			
-			String query = "SELECT * FROM movies WHERE director = ? ";
+			String query = "SELECT * FROM movies WHERE director like ? ";
 			
 			stmt = con.prepareStatement(query);
 			
-			stmt.setString(1, director);
+			stmt.setString(1, "%" + director + "%");
 			
 			rs = stmt.executeQuery();
 			
@@ -763,7 +773,6 @@ public class MySqlMovieDao extends MySqlDao implements MovieDaoInterface{
 				throw new DaoException("findMovieByTitle() " + e.getMessage());
 				
 			}
-		
 		
 		}
 		return m;
