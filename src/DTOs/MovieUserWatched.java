@@ -5,32 +5,37 @@
  */
 package DTOs;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  *
  * @author DELL
  */
 public class MovieUserWatched {
 
-    private int userId;
+    private int recordID;
     private String userName;
     private int movieId;
+    private String timeStamp;
 
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     public MovieUserWatched() {
 
     }
 
-    public MovieUserWatched(int userId, String userName, int movieId) {
-        this.userId = userId;
+    public MovieUserWatched(int recordID, String userName, int movieId, String timeStamp) {
+        this.recordID = recordID;
         this.userName = userName;
         this.movieId = movieId;
+        this.timeStamp = timeStamp;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public MovieUserWatched(String userName, int movieId, String timeStamp) {
+        this.userName = userName;
+        this.movieId = movieId;
+        this.timeStamp = timeStamp;
     }
 
     public String getUserName() {
@@ -49,9 +54,25 @@ public class MovieUserWatched {
         this.movieId = movieId;
     }
 
+    public int getRecordID() {
+        return recordID;
+    }
+
+    public void setRecordID(int recordID) {
+        this.recordID = recordID;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = dateFormat.format(timeStamp);
+    }
+
     @Override
     public String toString() {
-        return "MovieUserWatched{" + "userId=" + userId + ", userName=" + userName + ", movieId=" + movieId + '}';
+        return "MovieUserWatched{" + "recordID=" + recordID + ", userName=" + userName + ", movieId=" + movieId + ", timeStamp=" + timeStamp + '}';
     }
-    
+
 }

@@ -42,7 +42,8 @@ public class Client {
 
             System.out.println("Client: This Client is running and has connected to the server");
 
-            System.out.println("If you want to insert a new movie ,please use ; to indicate table colunm is finished except last one");
+            System.out.println("If you want to insert a new movie ,please use space to indicate table colunm is finished except last one"
+                    + "and if the column is empty please use null instead");
             String message = "please enter command:";
             System.out.print(message);        
             String command;
@@ -69,8 +70,9 @@ public class Client {
                     case "FINDMOVIEBYYEAR":
                     case "FINDMOVIEBYDIRECTOR":
                     case "TOPTENMOVIES":
+                    case "FINDMOVIEWATCHEDBYUSERNAME":
                         feedback = socketReader.nextLine();
-                        System.out.println("movies:\"" + feedback + "\"");
+                        System.out.println("Message:\"" + feedback + "\"");
                         break;
 
                     case "DELETEMOVIE":
@@ -80,8 +82,9 @@ public class Client {
                         break;
 
                     case "INSERTMOVIE":
+                    case "MOVIEWATCH":
                         feedback = socketReader.nextLine();
-                        System.out.println("movies:\"" + feedback + "\"");
+                        System.out.println("Message:\"" + feedback + "\"");
                         break;
 
                     case "Q":

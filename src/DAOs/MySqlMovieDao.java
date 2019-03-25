@@ -663,9 +663,12 @@ public class MySqlMovieDao extends Daos.MySqlDao implements MovieDaoInterface {
             m = new Movie(id, title, genre, director, runtime, plot, location, poster, rating, format, year, starring, copies, barcode, userRating);
 
         } catch (SQLException e) {
-            throw new DaoException("insertNewMovie()" + e.getMessage());
+            throw new DaoException("insertMovie()" + e.getMessage());
         } finally {
             try {
+                if (rs != null) {
+                    rs.close();
+                }
                 if (ps != null) {
                     ps.close();
                 }
@@ -673,7 +676,7 @@ public class MySqlMovieDao extends Daos.MySqlDao implements MovieDaoInterface {
                     freeConnection(con);
                 }
             } catch (SQLException e) {
-                throw new DaoException("insertNewMovie() " + e.getMessage());
+                throw new DaoException("insertMovie() " + e.getMessage());
             }
         }
         return m;

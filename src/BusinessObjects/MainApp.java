@@ -17,9 +17,12 @@
 package BusinessObjects;
 
 import DAOs.MovieDaoInterface;
+import DAOs.MovieUserWatchedInterface;
 import DAOs.MySqlMovieDao;
+import DAOs.MySqlMovieUserWatchedDao;
 import DTOs.User;
 import DTOs.Movie;
+import DTOs.MovieUserWatched;
 import Daos.MySqlUserDao;
 import Daos.UserDaoInterface;
 import Exceptions.DaoException;
@@ -30,6 +33,7 @@ import java.util.Scanner;
 public class MainApp {
 
     static MovieDaoInterface iMovieDao = new MySqlMovieDao();
+    
 
     public static void main(String[] args) {
         Scanner k = new Scanner(System.in);
@@ -91,7 +95,12 @@ public class MainApp {
                             details[8], details[9], Integer.parseInt(details[10]), details[11], Integer.parseInt(details[12]), details[13], details[14]);
                     System.out.println("insert");
                     break;
-
+                case "FINDMOVIEWATCHEDBYUSERNAME":
+                    findMovieWatchedByUserName(details[1]);
+                    break;
+                case "MOVIEWATCH":
+                    movieWatch(details[1], Integer.parseInt(details[2]));
+                    break;
                 default:
                     message = "";
                     break labelB;
@@ -144,9 +153,9 @@ public class MainApp {
                 case "DELETEMOVIE":
                 case "FINDMOVIEBYID":
                 case "FINDMOVIEBYYEAR":
-                    details = lineWords;
                 case "FINDMOVIEBYTITLE":
                 case "FINDMOVIEBYDIRECTOR":
+                case "FINDMOVIEWATCHEDBYUSERNAME":
                     String str = "";
                     for (int i = 1; i < lineWords.length; i++) {
                         str += lineWords[i];
@@ -174,14 +183,18 @@ public class MainApp {
                     break;
 
                 case "INSERTMOVIE":
-                    String movieDetails = lineWords[1];
-                    String[] movieD = movieDetails.split(";");
-
                     details = new String[15];
                     details[0] = subCommand;
-                    
-                    for (int i = 0; i < movieD.length; i++) {
-                        details[i+1] = movieD[i];
+                    for (int i = 1; i < lineWords.length; i++) {
+                        details[i] = lineWords[i];
+                    }
+                    break;
+
+                case "MOVIEWATCH":
+                    details = new String[3];
+                    details[0] = subCommand;
+                    for (int i = 1; i < lineWords.length; i++) {
+                        details[i] = lineWords[i];
                     }
                     break;
             }
@@ -416,6 +429,39 @@ public class MainApp {
                 jsonString += "]"
                         + "}";
                 System.out.println(jsonString);
+            }
+
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void findMovieWatchedByUserName(String userName) {
+        MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
+        try {
+            List<MovieUserWatched> moviesWa = iMovieWatchedDao.findMovieWatchedByUserName(userName);
+            if (moviesWa.isEmpty()) {
+                System.out.println("There is no record you searched, please check again.");
+            } else {
+                 int i = 1;
+        for (MovieUserWatched movieW : moviesWa) {            
+            System.out.println(movieW.getTimeStamp());
+        }
+            }
+
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void movieWatch(String userName, int movieID) {
+        MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
+        try {
+            MovieUserWatched moviesWa = iMovieWatchedDao.watchMovie(userName, movieID);
+            if (moviesWa == null) {
+                System.out.println("There is no record you searched, please check again.");
+            } else {
+                System.out.println(moviesWa);
             }
 
         } catch (DaoException e) {
