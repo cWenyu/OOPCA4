@@ -5,6 +5,7 @@
  */
 package DAOs;
 
+import DTOs.Movie;
 import DTOs.MovieUserWatched;
 import Exceptions.DaoException;
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.List;
  */
 public interface MovieUserWatchedInterface {
 
-    public List<MovieUserWatched> findMovieWatchedByUserName(String userName) throws DaoException;
+    public MovieUserWatched findMovieWatchedByUserName(String userName) throws DaoException;
 
     public MovieUserWatched watchMovie(String userName, int movieID) throws DaoException;
+
+    public List<Movie> recommandMovie(String userName) throws DaoException;
 }

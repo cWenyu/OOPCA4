@@ -1,37 +1,5 @@
 package BusinessObjects;
 
-/**
- * SERVER February 2019 DL 08/03/19
- *
- * Server accepts client connections, creates a ClientHandler to handle the
- * Client communication, creates a socket and passes the socket to the handler,
- * runs the handler in a separate Thread.
- *
- *
- * The handler reads requests from clients, and sends replies to clients, all in
- * accordance with the rules of the protocol. as specified in
- * "ClientServerBasic" sample program
- *
- * The following PROTOCOL is implemented:
- *
- * If ( the Server receives the request "Time", from a Client ) then : the
- * server will send back the current time
- *
- * If ( the Server receives the request "Echo message", from a Client ) then :
- * the server will send back the message
- *
- * If ( the Server receives the request it does not recognize ) then : the
- * server will send back the message "Sorry, I don't understand"
- *
- * This is an example of a simple protocol, where the server's response is based
- * on the client's request.
- *
- *
- */
-import static BusinessObjects.MainApp.findMovieByTitle;
-import static BusinessObjects.MainApp.iMovieDao;
-import static BusinessObjects.MainApp.splitCommand;
-import static BusinessObjects.MainApp.testMovies;
 import DAOs.MovieDaoInterface;
 import DAOs.MovieUserWatchedInterface;
 import DAOs.MySqlMovieDao;
@@ -50,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.*;
 
 public class Server {
 
@@ -153,7 +123,6 @@ public class Server {
                     String subCommand = details[0].toUpperCase();
 
                     List<Movie> movies = new ArrayList<>();
-                    List<MovieUserWatched> moviesWa = new ArrayList<>();
 
                     Movie m = new Movie();
                     MovieUserWatched movieWa = new MovieUserWatched();
@@ -240,11 +209,11 @@ public class Server {
                             break;
 
                         case "FINDMOVIEWATCHEDBYUSERNAME":
-                            moviesWa = findMovieWatchedByUserName(details[1]);
-                            if (moviesWa.isEmpty()) {
+                            movieWa = findMovieWatchedByUserName(details[1]);
+                            if (movieWa == null) {
                                 message = emptyMessage;
                             } else {
-                                message = movieWatchedconverToJson(moviesWa);
+                                message = movieWatchedToJson(movieWa);
                             }
                             socketWriter.println(message);
                             break;
@@ -252,6 +221,16 @@ public class Server {
                         case "MOVIEWATCH":
                             movieWa = movieWatch(details[1], Integer.parseInt(details[2]));
                             message = movieWatchedToJson(movieWa);
+                            socketWriter.println(message);
+                            break;
+
+                        case "RECOMMANDMOVIE":
+                            movies = recommandMovie(details[1]);
+                            if (movies.isEmpty()) {
+                                message = emptyMessage;
+                            } else {
+                                message = converToJson(movies);
+                            }
                             socketWriter.println(message);
                             break;
 
@@ -288,6 +267,7 @@ public class Server {
                 case "FINDMOVIEBYTITLE":
                 case "FINDMOVIEBYDIRECTOR":
                 case "FINDMOVIEWATCHEDBYUSERNAME":
+                case "RECOMMANDMOVIE":
                     String str = "";
                     for (int i = 1; i < lineWords.length; i++) {
                         str += lineWords[i];
@@ -492,14 +472,11 @@ public class Server {
                 + "}";
     }
 
-    public static List<MovieUserWatched> findMovieWatchedByUserName(String userName) {
-        List<MovieUserWatched> moviesWa = new ArrayList<>();
+    public static MovieUserWatched findMovieWatchedByUserName(String userName) {
+        MovieUserWatched moviesWa = new MovieUserWatched();
 
         try {
             moviesWa = iMovieWatchedDao.findMovieWatchedByUserName(userName);
-            if (moviesWa.isEmpty()) {
-                System.out.println("There is no record you searched, please check again.");
-            }
         } catch (DaoException e) {
             e.printStackTrace();
         }
@@ -507,33 +484,22 @@ public class Server {
     }
 
     public static MovieUserWatched movieWatch(String userName, int movieID) {
-        MovieUserWatched movieWa  = new MovieUserWatched();
+        MovieUserWatched movieWa = new MovieUserWatched();
         try {
             movieWa = iMovieWatchedDao.watchMovie(userName, movieID);
         } catch (DaoException e) {
             e.printStackTrace();
         }
-        return movieWa; 
+        return movieWa;
     }
 
-    public static String movieWatchedToJson(MovieUserWatched mw) {
-        return "{"
-                + "\"id\":" + mw.getRecordID() + ","
-                + "\"user name\":\"" + mw.getUserName() + "\","
-                + "\"movie id\":\"" + mw.getMovieId() + "\","
-                + "\"timestamp\":\"" + mw.getTimeStamp()
-                + "}";
-    }
-
-    public static String movieWatchedconverToJson(List<MovieUserWatched> moviesWa) {
-        String jsonString = "{"
-                + "\"movies watched\":"
-                + "[ ";
+    public static String movieWatchedJson(List<Movie> movies) {
+        String jsonString = "[ ";
         int i = 1;
-        for (MovieUserWatched movieW : moviesWa) {
-            jsonString += movieWatchedToJson(movieW);
+        for (Movie movie : movies) {
+            jsonString += toJson(movie);
 
-            if (i < moviesWa.size()) {
+            if (i < movies.size()) {
                 jsonString += ",";
                 i++;
             } else {
@@ -541,8 +507,33 @@ public class Server {
             }
 
         }
-        jsonString += "]"
-                + "}";
+        jsonString += "]";
         return jsonString;
+    }
+
+    public static String movieWatchedToJson(MovieUserWatched mw) {
+        String s = "{"
+                + "\"user name\":\"" + mw.getUserName() + "\","
+                + "\"movie id\":\"" + mw.getMovieId() + "\","
+                + "\"timestamp\":\"" + mw.getTimeStamp() + "\","
+                + "\"movies\":";
+
+        if (mw.getM() != null) {
+            s += toJson(mw.getM());
+        } else {
+            s += movieWatchedJson(mw.getMovie());
+        }
+        s += "}";
+        return s;
+    }
+
+    public static List<Movie> recommandMovie(String userName) {
+        List<Movie> movies = new ArrayList<>();
+        try {
+            movies = iMovieWatchedDao.recommandMovie(userName);
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+        return movies;
     }
 }

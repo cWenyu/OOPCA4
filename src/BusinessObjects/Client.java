@@ -1,28 +1,9 @@
 package BusinessObjects;
 
-/**
- * CLIENT February 2019 DL 08/03/19
- *
- * This Client program asks the user to input commands to be sent to the server.
- *
- * There are only two valid commands in the protocol: "Time" and "Echo"
- *
- * If user types "Time" the server should reply with the current server time.
- *
- * If the user types "Echo" followed by a message, the server will echo back the
- * message. e.g. "Echo Nice to meet you"
- *
- * If the user enters any other input, the server will not understand, and will
- * send back a message to the effect.
- *
- * NOte: You must run the server before running this the client. (Both the
- * server and the client will be running together on this computer)
- */
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Date;
 import java.util.Scanner;
 
 public class Client {
@@ -45,7 +26,7 @@ public class Client {
             System.out.println("If you want to insert a new movie ,please use space to indicate table colunm is finished except last one"
                     + "and if the column is empty please use null instead");
             String message = "please enter command:";
-            System.out.print(message);        
+            System.out.print(message);
             String command;
 
             OutputStream os = socket.getOutputStream();
@@ -71,27 +52,16 @@ public class Client {
                     case "FINDMOVIEBYDIRECTOR":
                     case "TOPTENMOVIES":
                     case "FINDMOVIEWATCHEDBYUSERNAME":
-                        feedback = socketReader.nextLine();
-                        System.out.println("Message:\"" + feedback + "\"");
-                        break;
-
+                    case "RECOMMANDMOVIE":
                     case "DELETEMOVIE":
                     case "UPDATEMOVIE":
-                        feedback = socketReader.nextLine();
-                        System.out.println("Message:" + feedback);
-                        break;
-
                     case "INSERTMOVIE":
                     case "MOVIEWATCH":
                         feedback = socketReader.nextLine();
-                        System.out.println("Message:\"" + feedback + "\"");
+                        System.out.println("Message:" + feedback);
                         break;
 
                     case "Q":
-                        feedback = socketReader.nextLine();
-                        System.out.println("Message:" + feedback);
-                        break labelB;
-
                     default:
                         feedback = socketReader.nextLine();
                         System.out.println("Message:" + feedback);

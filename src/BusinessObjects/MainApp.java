@@ -33,7 +33,6 @@ import java.util.Scanner;
 public class MainApp {
 
     static MovieDaoInterface iMovieDao = new MySqlMovieDao();
-    
 
     public static void main(String[] args) {
         Scanner k = new Scanner(System.in);
@@ -101,6 +100,9 @@ public class MainApp {
                 case "MOVIEWATCH":
                     movieWatch(details[1], Integer.parseInt(details[2]));
                     break;
+                case "RECOMMANDMOVIE":
+                    recommandMovie(details[1]);
+                    break;
                 default:
                     message = "";
                     break labelB;
@@ -156,6 +158,7 @@ public class MainApp {
                 case "FINDMOVIEBYTITLE":
                 case "FINDMOVIEBYDIRECTOR":
                 case "FINDMOVIEWATCHEDBYUSERNAME":
+                case "RECOMMANDMOVIE":
                     String str = "";
                     for (int i = 1; i < lineWords.length; i++) {
                         str += lineWords[i];
@@ -439,14 +442,14 @@ public class MainApp {
     public static void findMovieWatchedByUserName(String userName) {
         MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
         try {
-            List<MovieUserWatched> moviesWa = iMovieWatchedDao.findMovieWatchedByUserName(userName);
-            if (moviesWa.isEmpty()) {
+            MovieUserWatched moviesWa = iMovieWatchedDao.findMovieWatchedByUserName(userName);
+            if (moviesWa == null) {
                 System.out.println("There is no record you searched, please check again.");
             } else {
-                 int i = 1;
-        for (MovieUserWatched movieW : moviesWa) {            
-            System.out.println(movieW.getTimeStamp());
-        }
+                for (Movie m : moviesWa.getMovie()) {
+                    System.out.println(m.getTitle());
+                }
+//                System.out.println(moviesWa.getMovie());
             }
 
         } catch (DaoException e) {
@@ -463,6 +466,17 @@ public class MainApp {
             } else {
                 System.out.println(moviesWa);
             }
+
+        } catch (DaoException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void recommandMovie(String userName) {
+        MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
+        try {
+            System.out.println(iMovieWatchedDao.recommandMovie(userName));
+            
 
         } catch (DaoException e) {
             e.printStackTrace();
