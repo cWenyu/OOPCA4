@@ -7,7 +7,7 @@ package DTOs;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
+//import java.text.SimpleDateFormat ;
 
 /**
  *
@@ -19,10 +19,8 @@ public class MovieUserWatched {
     private String userName;
     private int movieId;
     private String timeStamp;
-    private List<Movie> movie;
-    private Movie m;
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    transient SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     public MovieUserWatched() {
 
@@ -35,18 +33,10 @@ public class MovieUserWatched {
         this.timeStamp = timeStamp;
     }
 
-    public MovieUserWatched(String userName, String timeStamp, int movieId, List<Movie> movie) {
+    public MovieUserWatched(String userName, int movieId, String timeStamp) {
         this.userName = userName;
         this.movieId = movieId;
         this.timeStamp = timeStamp;
-        this.movie = movie;
-    }
-
-    public MovieUserWatched(String userName, String timeStamp, int movieId, Movie m) {
-        this.userName = userName;
-        this.movieId = movieId;
-        this.timeStamp = timeStamp;
-        this.m = m;
     }
 
     public String getUserName() {
@@ -69,10 +59,6 @@ public class MovieUserWatched {
         return recordID;
     }
 
-    public void setRecordID(int recordID) {
-        this.recordID = recordID;
-    }
-
     public String getTimeStamp() {
         return timeStamp;
     }
@@ -81,19 +67,10 @@ public class MovieUserWatched {
         this.timeStamp = dateFormat.format(timeStamp);
     }
 
-    public List<Movie> getMovie() {
-        return movie;
-    }
-
-    public Movie getM() {
-        return m;
-    }
-
     @Override
     public String toString() {
         return "MovieUserWatched{" + "recordID=" + recordID + ", userName=" + userName
-                + ", movieId=" + movieId + ", timeStamp=" + timeStamp
-                + ", movie=" + movie.toString() + ", dateFormat=" + dateFormat + '}';
+                + ", movieId=" + movieId + ", timeStamp=" + timeStamp + '}';
     }
 
 }

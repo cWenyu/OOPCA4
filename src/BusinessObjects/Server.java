@@ -1,9 +1,12 @@
 package BusinessObjects;
 
+import DAOs.JoinedUserMovieDao;
+import DAOs.JoinedUserMovieInterface;
 import DAOs.MovieDaoInterface;
 import DAOs.MovieUserWatchedInterface;
 import DAOs.MySqlMovieDao;
 import DAOs.MySqlMovieUserWatchedDao;
+import DTOs.JoinedUserMovie;
 import DTOs.Movie;
 import DTOs.MovieUserWatched;
 import Exceptions.DaoException;
@@ -18,13 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.google.gson.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Server {
 
     static MovieDaoInterface iMovieDao = new MySqlMovieDao();
     static MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
+    static JoinedUserMovieInterface iJoinedUserMovieDao = new JoinedUserMovieDao();
+    static Gson gson = new Gson();
 
     public static void main(String[] args) {
         Server server = new Server();
@@ -33,8 +40,9 @@ public class Server {
 
     public void start() {
         try {
-            MovieDaoInterface iMovieDao = new MySqlMovieDao();
-            MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
+//            MovieDaoInterface iMovieDao = new MySqlMovieDao();
+//            MovieUserWatchedInterface iMovieWatchedDao = new MySqlMovieUserWatchedDao();
+//            JoinedUserMovieInterface iJoinedUserMovieDao = new JoinedUserMovieDao();
 
             ServerSocket ss = new ServerSocket(8080);  // set up ServerSocket to listen for connections on port 8080
 
@@ -58,6 +66,9 @@ public class Server {
 
                 Thread t1 = new Thread(new ClientHandler(socket, iMovieWatchedDao, clientNumber)); // create a new ClientHandler for the client,
                 t1.start();
+
+                Thread t2 = new Thread(new ClientHandler(socket, iJoinedUserMovieDao, clientNumber));
+                t2.start();
 
                 System.out.println("Server: ClientHandler started in thread for client " + clientNumber + ". ");
                 System.out.println("Server: Listening for further connections...");
@@ -110,6 +121,23 @@ public class Server {
             }
         }
 
+        public ClientHandler(Socket clientSocket, JoinedUserMovieInterface iJoinedUserMovieDao, int clientNumber) {
+            try {
+                InputStreamReader isReader = new InputStreamReader(clientSocket.getInputStream());
+                this.socketReader = new BufferedReader(isReader);
+
+                OutputStream os = clientSocket.getOutputStream();
+                this.socketWriter = new PrintWriter(os, true); // true => auto flush socket buffer
+
+                this.clientNumber = clientNumber;  // ID number that we are assigning to this client
+
+                this.socket = clientSocket;  // store socket ref for closing 
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
         @Override
         public void run() {
             String command = "";
@@ -126,6 +154,8 @@ public class Server {
 
                     Movie m = new Movie();
                     MovieUserWatched movieWa = new MovieUserWatched();
+
+                    JoinedUserMovie jum = new JoinedUserMovie();
 
                     switch (subCommand) {
                         case "TESTMOVIES":
@@ -167,6 +197,7 @@ public class Server {
                             }
                             socketWriter.println(message);
                             break;
+
                         case "FINDMOVIEBYDIRECTOR":
                             movies = findMovieByDirector(details[1]);
                             if (movies.isEmpty()) {
@@ -208,16 +239,15 @@ public class Server {
                             socketWriter.println(message);
                             break;
 
-                        case "FINDMOVIEWATCHEDBYUSERNAME":
-                            movieWa = findMovieWatchedByUserName(details[1]);
-                            if (movieWa == null) {
-                                message = emptyMessage;
-                            } else {
-                                message = movieWatchedToJson(movieWa);
-                            }
-                            socketWriter.println(message);
-                            break;
-
+//                        case "FINDMOVIEWATCHEDBYUSERNAME":
+//                            jum = findMovieWatchedByUserName(details[1]);
+//                            if (jum == null) {
+//                                message = emptyMessage;
+//                            } else {
+//                                message = movieWatchedToJson(jum);
+//                            }
+//                            socketWriter.println(message);
+//                            break;
                         case "MOVIEWATCH":
                             movieWa = movieWatch(details[1], Integer.parseInt(details[2]));
                             message = movieWatchedToJson(movieWa);
@@ -453,34 +483,34 @@ public class Server {
     }
 
     public static String toJson(Movie m) {
-        return "{"
-                + "\"id\":" + m.getId() + ","
-                + "\"title\":\"" + m.getTitle() + "\","
-                + "\"genre\":\"" + m.getGenre() + "\","
-                + "\"director\":\"" + m.getDirector() + "\","
-                + "\"runtime\":\"" + m.getRuntime() + "\","
-                + "\"plot\":\"" + m.getPlot() + "\","
-                + "\"location\":\"" + m.getLocation() + "\","
-                + "\"poster\":\"" + m.getPoster() + "\","
-                + "\"rating\":\"" + m.getRating() + "\","
-                + "\"format\":\"" + m.getFormat() + "\","
-                + "\"year\":" + m.getYear() + ","
-                + "\"starring\":\"" + m.getStarring() + "\","
-                + "\"copies\":" + m.getCopies() + ","
-                + "\"barcode\":" + m.getBarcode() + ","
-                + "\"userRating\":" + m.getUserRating()
-                + "}";
+        return gson.toJson(m);
+//        return "{"
+//                + "\"id\":" + m.getId() + ","
+//                + "\"title\":\"" + m.getTitle() + "\","
+//                + "\"genre\":\"" + m.getGenre() + "\","
+//                + "\"director\":\"" + m.getDirector() + "\","
+//                + "\"runtime\":\"" + m.getRuntime() + "\","
+//                + "\"plot\":\"" + m.getPlot() + "\","
+//                + "\"location\":\"" + m.getLocation() + "\","
+//                + "\"poster\":\"" + m.getPoster() + "\","
+//                + "\"rating\":\"" + m.getRating() + "\","
+//                + "\"format\":\"" + m.getFormat() + "\","
+//                + "\"year\":" + m.getYear() + ","
+//                + "\"starring\":\"" + m.getStarring() + "\","
+//                + "\"copies\":" + m.getCopies() + ","
+//                + "\"barcode\":" + m.getBarcode() + ","
+//                + "\"userRating\":" + m.getUserRating()
+//                + "}";
     }
 
-    public static MovieUserWatched findMovieWatchedByUserName(String userName) {
-        MovieUserWatched moviesWa = new MovieUserWatched();
-
+    public static JoinedUserMovie findMovieWatchedByUserName(String userName) {
+        JoinedUserMovie jum = new JoinedUserMovie();
         try {
-            moviesWa = iMovieWatchedDao.findMovieWatchedByUserName(userName);
+            jum = iJoinedUserMovieDao.findMovieWatchedByUserName(userName);
         } catch (DaoException e) {
             e.printStackTrace();
         }
-        return moviesWa;
+        return jum;
     }
 
     public static MovieUserWatched movieWatch(String userName, int movieID) {
@@ -511,29 +541,143 @@ public class Server {
         return jsonString;
     }
 
-    public static String movieWatchedToJson(MovieUserWatched mw) {
-        String s = "{"
-                + "\"user name\":\"" + mw.getUserName() + "\","
-                + "\"movie id\":\"" + mw.getMovieId() + "\","
-                + "\"timestamp\":\"" + mw.getTimeStamp() + "\","
-                + "\"movies\":";
-
-        if (mw.getM() != null) {
-            s += toJson(mw.getM());
-        } else {
-            s += movieWatchedJson(mw.getMovie());
-        }
-        s += "}";
-        return s;
+    public static String movieWatchedToJson(MovieUserWatched muw) {
+        return gson.toJson(muw);
     }
 
+//    public static String movieWatchedToJson(JoinedUserMovie jum) {
+//        String s = "{"
+//                + "\"user name\":\"" + jum.getUserName() + "\","
+//                + "\"movies\":";
+//
+//        if (!jum.getMovies().isEmpty()) {
+//            s += movieWatchedJson(jum.getMovies());
+//        }
+//        s += "}";
+//        return s;
+//    }
     public static List<Movie> recommandMovie(String userName) {
         List<Movie> movies = new ArrayList<>();
+        List<Movie> recommandMovies = new ArrayList<>();
         try {
-            movies = iMovieWatchedDao.recommandMovie(userName);
+            movies = iJoinedUserMovieDao.findMovieWatchedByUserName(userName).getMovies();
+
+            //fetch movie directors
+            List<String> directors = new ArrayList<>();
+            for (Movie m1 : movies) {
+                if (m1.getDirector().contains(",")) {
+                    String[] direc = m1.getDirector().split(",");
+                    for (String s : direc) {
+                        directors.add(s);
+                    }
+                } else {
+                    directors.add(m1.getDirector());
+                }
+            }
+
+            //get frequence of each director
+            Map<String, Integer> mapD = new HashMap<>();
+            for (String d : directors) {
+                if (mapD.containsKey(d)) {
+                    mapD.put(d, mapD.get(d).intValue() + 1);
+                } else {
+                    mapD.put(d, new Integer(1));
+                }
+            }
+            //get max fre of director
+            String maxDirec = null;
+            int max = 0;
+            Iterator<String> iter = mapD.keySet().iterator();
+            while (iter.hasNext()) {
+                String key = iter.next();
+                Integer fre = mapD.get(key);
+                if (max > fre) {
+                    max = max;
+                } else {
+                    max = fre;
+                    maxDirec = key;
+                }
+            }
+
+            //fetch movie genre
+            List<String> genres = new ArrayList<>();
+            for (Movie m1 : movies) {
+                if (m1.getGenre().contains(",")) {
+                    String[] genre = m1.getGenre().split(",");
+                    for (String s : genre) {
+                        genres.add(s);
+                    }
+                } else {
+                    genres.add(m1.getGenre());
+                }
+            }
+
+            //get frequence of each genre
+            Map<String, Integer> mapG = new HashMap<>();
+            for (String g : genres) {
+                if (mapG.containsKey(g)) {
+                    mapG.put(g, mapG.get(g).intValue() + 1);
+                } else {
+                    mapG.put(g, new Integer(1));
+                }
+            }
+            //get max fre of genre
+            String maxGenre = null;
+            int maxG = 0;
+            Iterator<String> iterG = mapG.keySet().iterator();
+            while (iterG.hasNext()) {
+                String key = iterG.next();
+                Integer fre = mapG.get(key);
+                if (maxG > fre) {
+                    maxG = maxG;
+                } else {
+                    maxG = fre;
+                    maxGenre = key;
+                }
+            }
+
+            //fetch movie actor
+            List<String> actors = new ArrayList<>();
+            for (Movie m1 : movies) {
+                if (m1.getStarring().contains(",")) {
+                    String[] act = m1.getStarring().split(",");
+                    for (String s : act) {
+                        actors.add(s);
+                    }
+                } else {
+                    actors.add(m1.getStarring());
+                }
+            }
+
+            //get frequence of each actor
+            Map<String, Integer> mapA = new HashMap<>();
+            for (String a : actors) {
+                if (mapA.containsKey(a)) {
+                    mapA.put(a, mapA.get(a).intValue() + 1);
+                } else {
+                    mapA.put(a, new Integer(1));
+                }
+            }
+            //get max fre of actor
+            String maxActor = null;
+            int maxA = 0;
+            Iterator<String> iterA = mapA.keySet().iterator();
+            while (iterA.hasNext()) {
+                String key = iterA.next();
+                Integer fre = mapA.get(key);
+                if (maxA > fre) {
+                    maxA = maxA;
+                } else {
+                    maxA = fre;
+                    maxActor = key;
+                }
+            }
+
+            recommandMovies = iMovieDao.recommandedMovies(maxDirec, maxGenre, maxActor);
+
         } catch (DaoException e) {
             e.printStackTrace();
         }
-        return movies;
+        return recommandMovies;
     }
 }

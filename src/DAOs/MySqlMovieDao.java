@@ -681,4 +681,65 @@ public class MySqlMovieDao extends Daos.MySqlDao implements MovieDaoInterface {
         }
         return m;
     }
+
+    public List<Movie> recommandedMovies(String maxDirec, String maxGenre, String maxActor) throws DaoException {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        List<Movie> movies = new ArrayList<>();
+        try {
+            con = this.getConnection();
+
+            String query = "SELECT * FROM movies WHERE director like ? OR "
+                    + "genre like ? OR starring like ? ORDER BY RAND() LIMIT 5";
+            ps = con.prepareStatement(query);
+            ps.setString(1, "%" + maxDirec + "%");
+            ps.setString(2, "%" + maxGenre + "%");
+            ps.setString(3, "%" + maxActor + "%");
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int movieID = rs.getInt("id");
+                String title = rs.getString("title");
+                String genre = rs.getString("genre");
+                String director = rs.getString("director");
+                String runtime = rs.getString("runtime");
+                String plot = rs.getString("plot");
+                String location = rs.getString("location");
+                String poster = rs.getString("poster");
+                String rating = rs.getString("rating");
+                String format = rs.getString("format");
+                int year = rs.getInt("year");
+                String starring = rs.getString("starring");
+                int copies = rs.getInt("copies");
+                String barcode = rs.getString("barcode");
+                String userRating = rs.getString("user_rating");
+
+                Movie m = new Movie(movieID, title, genre, director, runtime,
+                        plot, location, poster, rating, format, year,
+                        starring, copies, barcode, userRating);
+                movies.add(m);
+            }
+
+        } catch (SQLException e) {
+            throw new DaoException("recommandMovie() " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    freeConnection(con);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("recommandMovie() " + e.getMessage());
+            }
+        }
+        return movies;
+    }
 }

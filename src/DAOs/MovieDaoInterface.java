@@ -45,4 +45,6 @@ public interface MovieDaoInterface {
     public Movie insertMovie(String title, String genre, String director, String runtime,
             String plot, String location, String poster, String rating, String format,
             int year, String starring, int copies, String barcode, String userRating) throws DaoException;
+
+    public List<Movie> recommandedMovies(String maxDirec,String maxGenre,String maxActor) throws DaoException;
 }

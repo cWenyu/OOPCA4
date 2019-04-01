@@ -5,8 +5,8 @@
  */
 package DAOs;
 
+import DTOs.JoinedUserMovie;
 import DTOs.Movie;
-import DTOs.MovieUserWatched;
 import Exceptions.DaoException;
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author DELL
  */
-public interface MovieUserWatchedInterface {
-
-    public MovieUserWatched watchMovie(String userName, int movieID) throws DaoException;
+public interface JoinedUserMovieInterface {
+    
+     public JoinedUserMovie findMovieWatchedByUserName(String userName) throws DaoException;
 }
